@@ -3,6 +3,9 @@ import express from "express";
 import dotenv from "dotenv";
 dotenv.config();
 
+// cheatsheet ref:
+// https://devhints.io/knex
+
 const app = express();
 import { knex } from "./database/connection";
 
@@ -207,6 +210,34 @@ app.get("/db/jointables", async (req, res) => {
     // could explore many to many but imagine wf is similar
 
     res.send({ users, address, mapped, joint, joint2 });
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+app.get("/db/modify", async (req, res) => {
+  try {
+    await knex("users").where("id", 1).update({
+      name: "John Doe",
+      email: "johnnyboy@gmail.com",
+      password: "123456",
+    });
+
+    const users = await knex.select("*").from("users");
+    res.send(users);
+  } catch (e) {
+    console.log(e);
+  }
+});
+
+app.get("/db/addcolumn", async (req, res) => {
+  try {
+    await knex.schema.table("users", (table) => {
+      table.string("details").defaultTo("something important");
+    });
+
+    const users = await knex.select("*").from("users");
+    res.send(users);
   } catch (e) {
     console.log(e);
   }
